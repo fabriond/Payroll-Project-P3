@@ -2,8 +2,7 @@
 Projeto de P3 - Folha de Pagamento
 
 ### Funcionalidades
-
-- [ ] Adição de um Empregado
+- [x] Adição de um Empregado
 - [ ] Remoção de um Empregado
 - [ ] Lançar um Cartão de Ponto
 - [ ] Lançar um Resultado de Venda
