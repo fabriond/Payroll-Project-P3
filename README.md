@@ -1,6 +1,8 @@
 # Payroll-Project-P3
 Projeto de P3 - Folha de Pagamento
 
+No desenvolvimento desse projeto foram usados a versão 8 do Java e a IDE Eclipse
+
 ### Funcionalidades
 - [x] Adição de um Empregado
 - [x] Remoção de um Empregado
