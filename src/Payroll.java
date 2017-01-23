@@ -34,6 +34,7 @@ public class Payroll {
 	public static void main(String[] args){
 				
 		int menuOption = 0;
+		defaultEmployees();
 		
 		while(menuOption != 10){
 			
@@ -66,7 +67,7 @@ public class Payroll {
 				menuOption = scan.nextInt();
 			}
 			
-			if((lastAction == 2 && menuOption != 8) || menuOption != 9) deleteEmployee();
+			if((lastAction == 2 && menuOption != 8) || (lastUndo == 1 && menuOption != 9)) deleteEmployee();
 			if(lastAction == menuOption && menuOption == 8) System.out.println("You can't undo twice in a row");
 
 			if(menuOption == 1){
@@ -145,8 +146,10 @@ public class Payroll {
 				System.out.println("  2 - Salaried ");
 				System.out.println("  3 - Commissioned ");
 				newEmployee.type = scan.nextInt();
-				newEmployee.paymentFrequency = newEmployee.type;
+				
 			}
+			
+			newEmployee.paymentFrequency = newEmployee.type;
 			
 			if(newEmployee.type == 1) System.out.print("Hourly Salary: R$ ");
 			else if(newEmployee.type == 2) System.out.print("Monthly Salary: R$ ");
@@ -222,7 +225,7 @@ public class Payroll {
 			System.out.println("Add at least one employee!\n");
 			return;
 		}
-		printCurrentEmployees();
+		printCurrentEmployees(0);
 		
 		int removeId = idValidation();
 		
@@ -232,7 +235,7 @@ public class Payroll {
 		
 	}
 	
-	public static void removeActive(int id){ //for deleting purposes
+	public static void removeActive(int id){
 		employees[id].active = false;
 		activeEmployeeCount--;
 		return;
@@ -248,6 +251,7 @@ public class Payroll {
 		for(int i = 0, j = 0; i < employeeCount; i++){
 			if(employees[i].active == true){
 				newEmployeeList[j] = employees[i];
+				newEmployeeList[j].id = j;
 				j++;
 			}
 		}
@@ -264,9 +268,14 @@ public class Payroll {
 			return;
 		}
 		
-		printCurrentEmployees();
-		
+		printCurrentEmployees(1);
 		int employeeId = idValidation();
+		
+		while(employees[employeeId].type != 1){
+			System.out.println("Employee selected can't have a time card added, try again.\n");
+			printCurrentEmployees(1);
+			employeeId = idValidation();
+		}
 		System.out.print("Worked Hours: ");
 		Double time = scan.nextDouble();
 		if(time > 8.0){
@@ -287,9 +296,15 @@ public class Payroll {
 			return;
 		}
 		
-		printCurrentEmployees();
+		printCurrentEmployees(2);
 		
 		int employeeId = idValidation();
+		
+		while(employees[employeeId].type != 3){
+			System.out.println("Employee selected can't have a sale results added, try again.\n");
+			printCurrentEmployees(2);
+			employeeId = idValidation();
+		}
 		
 		if(employees[employeeId].saleNumber == employees[employeeId].maxSales && employees[employeeId].saleNumber != 0){
 			employees[employeeId].maxSales += 200;
@@ -336,9 +351,15 @@ public class Payroll {
 			return;
 		}
 		
-		printCurrentEmployees();
-		
+		printCurrentEmployees(3);		
 		int employeeId = idValidation();
+		
+		while(employees[employeeId].syndicateMember != true){
+			System.out.println("Employee selected can't have service taxes added because he isn't a syndicate member, try again.\n");
+			printCurrentEmployees(3);
+			employeeId = idValidation();
+		}
+		
 		Double newTax = 0.0;
 		newTax = employees[employeeId].serviceTax;
 		System.out.print("Service Tax Value: R$ ");
@@ -356,7 +377,7 @@ public class Payroll {
 			return;
 		}
 		
-		printCurrentEmployees();
+		printCurrentEmployees(0);
 		
 		int employeeId = idValidation();
 		int entry = 0;
@@ -372,7 +393,7 @@ public class Payroll {
 			entry = scan.nextInt();
 			if(entry > 8 || entry < 1) System.out.println("Entry not valid, try again.\n");
 		}
-		entry = lastEdited;
+		lastEdited = entry;
 		if(entry == 1){
 			System.out.println("Current Name: "+employees[employeeId].name);
 			lastEditedString = employees[employeeId].name;
@@ -512,12 +533,14 @@ public class Payroll {
 		int weeklyPayment = today + (6 - weekDay);
 		int monthlyPaymentDay = lastWorkingDayOfMonth();
 		int biweeklyPaymentDay = secondFridayOfMonth();
-		
+		int paidEmployees = 0;
 		if(today == weeklyPayment){
 			
 			for(int i = 0; i < employeeCount; i++){
+				System.out.println(employees[i].paymentFrequency+" | "+employees[i].name);
 				if(employees[i].active == true){
 					if(employees[i].paymentFrequency == 1){
+						paidEmployees++;
 						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod));
 					}
 				}	
@@ -528,6 +551,7 @@ public class Payroll {
 			for(int i = 0; i < employeeCount; i++){
 				if(employees[i].active == true){
 					if(employees[i].paymentFrequency == 2){
+						paidEmployees++;
 						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod));
 					}
 				}	
@@ -538,10 +562,14 @@ public class Payroll {
 			for(int i = 0; i < employeeCount; i++){
 				if(employees[i].active == true){
 					if(employees[i].paymentFrequency == 3){
+						paidEmployees++;
 						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod));
 					}
 				}	
 			}	
+		}
+		if(paidEmployees == 0){
+			System.out.println("No employees are paid today.\n");
 		}
 		setLastPayment();
 		setMonth();
@@ -740,7 +768,6 @@ public class Payroll {
 	
 	public static int getYear(){
 		Calendar date = Calendar.getInstance();
-		System.out.println(date.get(Calendar.YEAR));
 		return date.get(Calendar.YEAR);
 	}
 	
@@ -755,35 +782,28 @@ public class Payroll {
 	public static int secondFridayOfMonth(){
 		
 		int firstDay = 1;
-		int firstDayWeek = firstDayOfMonthInWeekDays();
+		int firstDayWeek = getWeekDayOfFirstDayOfMonth();
 		int secondFriday = firstDay + (6 - firstDayWeek)+6;
 		return secondFriday;
 		
 	}
 	
-	public static int firstDayOfMonthInWeekDays(){
+	public static int getWeekDayOfFirstDayOfMonth(){
+		Calendar firstDay = Calendar.getInstance();
+		firstDay.set(Calendar.DATE, firstDay.getActualMinimum(Calendar.DATE));
+		return firstDay.get(Calendar.DAY_OF_WEEK);
+	}
 	
-		int dayOfWeek = getWeekDay();
-		int dayOfMonth = getDate();
-		int firstDayOfMonth = 1;
-		int firstDayOfMonthInWeekDays = dayOfWeek;
-		
-		firstDayOfMonthInWeekDays -= (dayOfMonth - firstDayOfMonth) % 7;
-		firstDayOfMonthInWeekDays %= 7;
-		System.out.println(firstDayOfMonthInWeekDays);
-		return firstDayOfMonthInWeekDays;
-		
+	public static int getWeekDayOfLastDayOfMonth(){
+		Calendar lastDay = Calendar.getInstance();
+		lastDay.set(Calendar.DATE, lastDay.getActualMaximum(Calendar.DATE));
+		return lastDay.get(Calendar.DAY_OF_WEEK);
 	}
 	
 	public static int lastWorkingDayOfMonth(){
-		
-		int dayOfWeek = getWeekDay();
-		int dayOfMonth = getDate();
+
 		int lastDayOfMonth = getLastDayOfMonth();
-		int lastDayOfMonthInWeek = dayOfWeek;
-		
-		lastDayOfMonthInWeek += (lastDayOfMonth - dayOfMonth) % 7;
-		lastDayOfMonthInWeek %= 7;
+		int lastDayOfMonthInWeek = getWeekDayOfLastDayOfMonth();
 		
 		if(lastDayOfMonthInWeek == 7){
 			lastDayOfMonthInWeek = 6;
@@ -814,15 +834,45 @@ public class Payroll {
 		else return "Bank Deposit";
 	}
 	
-	public static void printCurrentEmployees(){
+	public static void printCurrentEmployees(int type){//types: 0 - default, 1 - time card, 2 - sale result, 3 - service tax
+
+		System.out.println("\nEligible Employees List: ");
 		
-		System.out.println("\nEmployee List: ");
-		for(int i = 0; i < employeeCount; i++){
-			System.out.print("  ID: ");
-			if(employees[i].id < 10) System.out.print("0");
-			if(employees[i].id < 100) System.out.print("0");
-			System.out.println(employees[i].id+" | Name: "+employees[i].name);
-		}
+			if(type == 0){
+				for(int i = 0; i < employeeCount; i++){
+					System.out.print("  ID: ");
+					System.out.printf("%03d", employees[i].id);
+					System.out.println(" | Name: "+employees[i].name);
+				}
+			}
+			else if(type == 1){
+				for(int i = 0; i < employeeCount; i++){
+					if(employees[i].type == 1){
+						System.out.print("  ID: ");
+						System.out.printf("%03d", employees[i].id);
+						System.out.println(" | Name: "+employees[i].name);
+					}
+				}
+			}
+			else if(type == 2){
+				for(int i = 0; i < employeeCount; i++){
+					if(employees[i].type == 3){
+						System.out.print("  ID: ");
+						System.out.printf("%03d", employees[i].id);
+						System.out.println(" | Name: "+employees[i].name);
+					}
+				}
+			}
+			else{
+				for(int i = 0; i < employeeCount; i++){
+					if(employees[i].syndicateMember == true){
+						System.out.print("  ID: ");
+						System.out.printf("%03d", employees[i].id);
+						System.out.println(" | Name: "+employees[i].name);
+					}
+				}
+			}
+			
 		return;
 		
 	}
@@ -838,6 +888,144 @@ public class Payroll {
 		}
 		lastEmployeeChanged = id;
 		return id;
+	}
+
+	public static void defaultEmployees(){
+		Employee newEmployee = new Employee();
+		
+		newEmployee.id = 0;
+		newEmployee.active = true;
+		newEmployee.name = "Will Beaumont";
+		newEmployee.address = "884 Ashton Lane";
+		newEmployee.type = 1;
+		newEmployee.paymentFrequency = newEmployee.type;
+		newEmployee.salary = 17.85;
+		newEmployee.paymentMethod = 2;
+		newEmployee.syndicateMember = true;
+		newEmployee.syndicateId = 0;
+		newEmployee.syndicateTax = 17.85*2;
+		employees[0] = newEmployee;
+		
+		newEmployee = new Employee();
+		newEmployee.id = 1;
+		newEmployee.active = true;
+		newEmployee.name = "Drew Reynolds";
+		newEmployee.address = "873 Hog Camp Road";
+		newEmployee.type = 1;
+		newEmployee.paymentFrequency = newEmployee.type;
+		newEmployee.salary = 23.45;
+		newEmployee.paymentMethod = 1;
+		newEmployee.syndicateMember = false;
+		employees[1] = newEmployee;
+		
+		newEmployee = new Employee();
+		newEmployee.id = 2;
+		newEmployee.active = true;
+		newEmployee.name = "August Richard";
+		newEmployee.address = "4914 Woodland Terrace";
+		newEmployee.type = 1;
+		newEmployee.paymentFrequency = newEmployee.type;
+		newEmployee.salary = 13.65;
+		newEmployee.paymentMethod = 1;
+		newEmployee.syndicateMember = true;
+		newEmployee.syndicateId = 1;
+		newEmployee.syndicateTax = 13.65*2;
+		employees[2] = newEmployee;
+		
+		newEmployee = new Employee();
+		newEmployee.id = 3;
+		newEmployee.active = true;
+		newEmployee.name = "Jace Patrickson";
+		newEmployee.address = "2945 Park Street";
+		newEmployee.type = 2;
+		newEmployee.paymentFrequency = newEmployee.type;
+		newEmployee.salary = 3225.75;
+		newEmployee.paymentMethod = 2;
+		newEmployee.syndicateMember = false;
+		employees[3] = newEmployee;
+		
+		newEmployee = new Employee();
+		newEmployee.id = 4;
+		newEmployee.active = true;
+		newEmployee.name = "Josh Fluttershy";
+		newEmployee.address = "4253 Wascana Parkway";
+		newEmployee.type = 2;
+		newEmployee.paymentFrequency = newEmployee.type;
+		newEmployee.salary = 1914.50;
+		newEmployee.paymentMethod = 3;
+		newEmployee.syndicateMember = false;
+		employees[4] = newEmployee;
+		
+		newEmployee = new Employee();
+		newEmployee.id = 5;
+		newEmployee.active = true;
+		newEmployee.name = "Jimmy Roe";
+		newEmployee.address = "3283 Churchill Plaza";
+		newEmployee.type = 1;
+		newEmployee.paymentFrequency = newEmployee.type;
+		newEmployee.salary = 14.25;
+		newEmployee.paymentMethod = 1;
+		newEmployee.syndicateMember = false;
+		employees[5] = newEmployee;
+		
+		newEmployee = new Employee();
+		newEmployee.id = 6;
+		newEmployee.active = true;
+		newEmployee.name = "Norbert Abrams";
+		newEmployee.address = "2586 Glover Road";
+		newEmployee.type = 3;
+		newEmployee.paymentFrequency = newEmployee.type;
+		newEmployee.commission = 8.0;
+		newEmployee.salary = 1636.30/2;
+		newEmployee.paymentMethod = 3;
+		newEmployee.syndicateMember = true;
+		newEmployee.syndicateId = 2;
+		newEmployee.syndicateTax = 54.75;
+		employees[6] = newEmployee;
+		
+		newEmployee = new Employee();
+		newEmployee.id = 7;
+		newEmployee.active = true;
+		newEmployee.name = "Jerrod Arkwright";
+		newEmployee.address = "81 Thompsons Lane";
+		newEmployee.type = 3;
+		newEmployee.paymentFrequency = newEmployee.type;
+		newEmployee.commission = 12.5;
+		newEmployee.salary = 2183.50/2;
+		newEmployee.paymentMethod = 2;
+		newEmployee.syndicateMember = true;
+		newEmployee.syndicateId = 3;
+		newEmployee.syndicateTax = 72.50;
+		employees[7] = newEmployee;
+		
+		newEmployee = new Employee();
+		newEmployee.id = 8;
+		newEmployee.active = true;
+		newEmployee.name = "Adam Emmett";
+		newEmployee.address = "47 Berkeley Road";
+		newEmployee.type = 1;
+		newEmployee.paymentFrequency = newEmployee.type;
+		newEmployee.salary = 12.75;
+		newEmployee.paymentMethod = 3;
+		newEmployee.syndicateMember = true;
+		newEmployee.syndicateId = 4;
+		newEmployee.syndicateTax = 12.75*2;
+		employees[8] = newEmployee;
+		
+		newEmployee = new Employee();
+		newEmployee.id = 9;
+		newEmployee.active = true;
+		newEmployee.name = "Maynard Devin";
+		newEmployee.address = "56 Station Road";
+		newEmployee.type = 2;
+		newEmployee.paymentFrequency = newEmployee.type;
+		newEmployee.salary = 1864.75;
+		newEmployee.paymentMethod = 2;
+		newEmployee.syndicateMember = false;
+		employees[9] = newEmployee;
+		
+		employeeCount = 10;
+		activeEmployeeCount = 10;
 	}
 	
 	public static void editSyndicateOptions(int employeeId){
