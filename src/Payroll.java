@@ -105,7 +105,7 @@ public class Payroll {
 			}
 			
 			else if(menuOption == 9){
-				if(lastAction == 9) System.out.println("You can't redo twice, try using undo instead.");
+				if(lastAction == 9) System.out.println("You can't redo twice in a row, try using undo instead.");
 				else redo();				
 			}
 			
