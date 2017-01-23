@@ -70,7 +70,6 @@ public class Payroll {
 			}
 			
 			if((lastAction == 2 && menuOption != 8) || (lastUndo == 1 && menuOption != 9)) deleteEmployee();
-			if(lastAction == menuOption && menuOption == 8) System.out.println("You can't undo twice in a row");
 
 			if(menuOption == 1){
 				addEmployees();
@@ -101,7 +100,7 @@ public class Payroll {
 			}
 			
 			else if(menuOption == 8){
-				if(lastAction == 8) System.out.println("You can't undo twice, try using redo instead.");
+				if(lastAction == 8) System.out.println("You can't undo twice in a row, try using redo instead.");
 				else undo();				
 			}
 			
