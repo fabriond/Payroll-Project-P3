@@ -996,7 +996,7 @@ public class Payroll {
 					System.out.print("  ID: ");
 					System.out.printf("%03d", employees[i].id);
 					System.out.println(" | Type: "+typeConversion(employees[i].type)+"\n\t  | Salary: R$ "+employees[i].salary+" "+paymentRate(employees[i].paymentFrequency)+"\n\t  | Payment Method: "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
-					System.out.println(employees[i].weekPayment);
+					
 				}
 			}
 			else{
