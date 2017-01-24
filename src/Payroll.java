@@ -38,7 +38,10 @@ public class Payroll {
 	public static void main(String[] args){
 				
 		int menuOption = 0;
-		defaultEmployees();
+		System.out.println("Create default employees?");
+		System.out.println("  1 - Yes");
+		System.out.println("  2 - No");
+		if(scan.nextInt() == 1) defaultEmployees();
 		
 		while(menuOption != 11){
 			
