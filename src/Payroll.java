@@ -41,6 +41,7 @@ public class Payroll {
 		while(menuOption != 11){
 			
 			System.out.println("Select your action: \n");
+			System.out.println("  0 - List All Employees");
 			System.out.println("  1 - Add Employee ");
 			System.out.println("  2 - Remove Employee ");
 			System.out.println("  3 - Turn in Time Card ");
@@ -72,8 +73,13 @@ public class Payroll {
 			}
 			
 			if((lastAction == 2 && menuOption != 8) || (lastUndo == 1 && menuOption != 9)) deleteEmployee();
-
-			if(menuOption == 1){
+			
+			if(menuOption == 0){
+				printCurrentEmployees(4);
+				System.out.println("");
+			}
+			
+			else if(menuOption == 1){
 				addEmployees();
 			}
 			
@@ -115,7 +121,7 @@ public class Payroll {
 				createNewAgenda();				
 			}
 			
-			else if(menuOption != 10){
+			else if(menuOption != 11){
 				System.out.println("Function still not implemented");	
 			}
 			
@@ -913,9 +919,11 @@ public class Payroll {
 		else return "Bank Deposit";
 	}
 	
-	public static void printCurrentEmployees(int type){//types: 0 - default, 1 - time card, 2 - sale result, 3 - service tax
+	public static void printCurrentEmployees(int type){//types: 0 - default, 1 - time card, 2 - sale result, 3 - service tax, 4 - print all employees
 
-		System.out.println("\nEligible Employees List: ");
+		if(type != 4) System.out.println("\nEligible Employees List: ");
+		
+		else System.out.println("\nEmployee List: ");
 		
 			if(type == 0){
 				for(int i = 0; i < employeeCount; i++){
@@ -942,6 +950,16 @@ public class Payroll {
 					}
 				}
 			}
+			else if(type == 4){
+				for(int i = 0; i < employeeCount; i++){
+					
+					System.out.println("\n\t  | Name: "+employees[i].name+"\n\t  | Address: "+employees[i].address);
+					System.out.print("  ID: ");
+					System.out.printf("%03d", employees[i].id);
+					System.out.println(" | Type: "+typeConversion(employees[i].type)+"\n\t  | Salary: R$ "+employees[i].salary+" "+paymentRate(employees[i].paymentFrequency)+"\n\t  | Payment Method: "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
+					
+				}
+			}
 			else{
 				for(int i = 0; i < employeeCount; i++){
 					if(employees[i].syndicateMember == true){
@@ -951,7 +969,7 @@ public class Payroll {
 					}
 				}
 			}
-			
+		
 		return;
 		
 	}
