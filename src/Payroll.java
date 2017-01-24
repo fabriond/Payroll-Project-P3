@@ -38,7 +38,7 @@ public class Payroll {
 		int menuOption = 0;
 		defaultEmployees();
 		
-		while(menuOption != 10){
+		while(menuOption != 11){
 			
 			System.out.println("Select your action: \n");
 			System.out.println("  1 - Add Employee ");
@@ -50,7 +50,8 @@ public class Payroll {
 			System.out.println("  7 - Run Today's Payroll ");
 			System.out.println("  8 - Undo ");
 			System.out.println("  9 - Redo ");
-			System.out.println("  10 - Close \n");
+			System.out.println("  10 - Create New Payment Agenda ");
+			System.out.println("  11 - Close \n");
 			
 			menuOption = scan.nextInt();
 			while(lastAction != 8 && menuOption == 9){
@@ -65,7 +66,8 @@ public class Payroll {
 				System.out.println("  7 - Run Today's Payroll ");
 				System.out.println("  8 - Undo ");
 				System.out.println("  9 - Redo ");
-				System.out.println("  10 - Close \n");
+				System.out.println("  10 - Create New Payment Agenda ");
+				System.out.println("  11 - Close \n");
 				menuOption = scan.nextInt();
 			}
 			
@@ -107,6 +109,10 @@ public class Payroll {
 			else if(menuOption == 9){
 				if(lastAction == 9) System.out.println("You can't redo twice in a row, try using undo instead.");
 				else redo();				
+			}
+			
+			else if(menuOption == 10){
+				createNewAgenda();				
 			}
 			
 			else if(menuOption != 10){
@@ -392,7 +398,7 @@ public class Payroll {
 			System.out.println("  6 - Syndicate Membership");
 			System.out.println("  7 - Payment Frequency");
 			entry = scan.nextInt();
-			if(entry > 8 || entry < 1) System.out.println("Entry not valid, try again.\n");
+			if(entry > 7 || entry < 1) System.out.println("Entry not valid, try again.\n");
 		}
 		lastEdited = entry;
 		if(entry == 1){
@@ -516,6 +522,7 @@ public class Payroll {
 				System.out.print("New Salary: R$ ");
 				employees[employeeId].salary = scan.nextDouble();
 			}
+			employees[employeeId].lastPayment = 0;
 		}
 		System.out.println("Employee edited successfully!\n");
 		return;
@@ -536,39 +543,37 @@ public class Payroll {
 		int biweeklyPaymentDay = secondFridayOfMonth();
 		int paidEmployees = 0;
 		
-		if(today == weeklyPayment){
+		for(int i = 0; i < employeeCount; i++){
+			if(employees[i].monthPayment == 0 && employees[i].weekPayment == 0){
+				if(employees[i].paymentFrequency == 1 && today == weeklyPayment){
+					paidEmployees++;
+					System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
+				}
+				else if(employees[i].paymentFrequency == 2 && today == monthlyPaymentDay){
+					paidEmployees++;
+					System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
+				}
+				else if(employees[i].paymentFrequency == 3 && today == biweeklyPaymentDay){
+					paidEmployees++;
+					System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
+				}
+			}
+			else if(employees[i].monthPayment == today && employees[i].paymentFrequency == 2){
+				paidEmployees++;
+				System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
+			}
+			else if(employees[i].weekPayment == weekDay){
+				paidEmployees++;
+				System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
+			}
+			else if(secondSelectDayOfMonth(employees[i].weekPayment, employees[i]) == today){
+				paidEmployees++;
+				System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
+			}
 			
-			for(int i = 0; i < employeeCount; i++){
-				if(employees[i].active == true){
-					if(employees[i].paymentFrequency == 1){
-						paidEmployees++;
-						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
-					}
-				}	
-			}	
-		}
-		if(today == monthlyPaymentDay){
 			
-			for(int i = 0; i < employeeCount; i++){
-				if(employees[i].active == true){
-					if(employees[i].paymentFrequency == 2){
-						paidEmployees++;
-						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
-					}
-				}	
-			}	
-		}
-		if(today == biweeklyPaymentDay){
-			lastBiweeklyPayment = today;
-			for(int i = 0; i < employeeCount; i++){
-				if(employees[i].active == true){
-					if(employees[i].paymentFrequency == 3){
-						paidEmployees++;
-						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
-					}
-				}	
-			}	
-		}
+		}	
+		
 		if(paidEmployees == 0){
 			System.out.println("No employees are paid today.\n");
 		}
@@ -744,6 +749,46 @@ public class Payroll {
 
 	}
 	
+	public static void createNewAgenda(){
+		
+		if(activeEmployeeCount == 0){
+			System.out.println("Add at least one employee!\n");
+			return;
+		}
+		
+		printCurrentEmployees(0);
+		
+		int employeeId = idValidation();
+		int agenda = 0;
+		while(agenda > 2 || agenda < 1){
+			System.out.println("What kind of agenda do you want: ");
+			System.out.println("  1 - Monthly Based");
+			System.out.println("  2 - Weekly Based");
+			agenda = scan.nextInt();
+			if(agenda > 2 || agenda < 1) System.out.println("Entry not valid, try again.\n");
+		}
+		
+		if(agenda == 1){
+			employees[employeeId].paymentFrequency = 2;
+			System.out.println("What day of the month will "+employees[employeeId].name+" be paid on?\n ($ for last working day of month)");
+			String answer = scan.nextLine();
+			if(answer != "$") employees[employeeId].monthPayment = Integer.parseInt(answer);
+			else employees[employeeId].monthPayment = 0;
+		}
+		else{
+			System.out.println("Payment Frequency: ");
+			System.out.println("  1 - Weekly");
+			System.out.println("  2 - Biweekly");
+			if(scan.nextInt() == 1) employees[employeeId].paymentFrequency = 1;
+			else employees[employeeId].paymentFrequency = 3;
+			System.out.println("Week day of payment(from 1 - sun to 7 - sat): ");
+			employees[employeeId].weekPayment = scan.nextInt();
+			employees[employeeId].lastPayment = 0;
+		
+		}
+		return;
+	}
+	
 	public static int getDate(){
 		Calendar date = Calendar.getInstance();
 		return date.get(Calendar.DAY_OF_MONTH);
@@ -780,6 +825,26 @@ public class Payroll {
 	
 	public static int getToday(){
 		return getDate()*getMonth()*getYear();
+	}
+	
+	public static int secondSelectDayOfMonth(int weekDay, Employee employee){
+		
+		int today = getDate();
+		int firstDay = 1;
+		int firstDayWeek = getWeekDayOfFirstDayOfMonth();
+		int paymentDay = firstDay + (weekDay - firstDayWeek)+7;;
+		if(employee.lastPayment != 0 && lastMonth != getMonth()){
+			paymentDay = 14 + employee.lastPayment;
+			if(paymentDay > lastDayOfLastMonth){
+				paymentDay -= lastDayOfLastMonth;
+			}
+		}
+		else if(today > paymentDay){
+			paymentDay += 14;
+		}
+		
+		return paymentDay;
+		
 	}
 	
 	public static int secondFridayOfMonth(){

@@ -20,5 +20,8 @@ public class Employee{
 	public Sale[] sales;
 	public int saleNumber = 0;
 	public int maxSales;
+	public int monthPayment = 0;
+	public int weekPayment = 0;
+	public int lastPayment = 0;
 
 }
