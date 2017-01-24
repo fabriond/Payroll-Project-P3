@@ -526,8 +526,6 @@ public class Payroll {
 			
 			while(employees[employeeId].paymentFrequency > 3 || employees[employeeId].paymentFrequency < 1){
 				System.out.println("Entry not valid, try again.\n");
-				if(employees[employeeId].type != 1) auxInt = employees[employeeId].weekPayment;
-				System.out.println("Current Payment Frequency: "+employees[employeeId].paymentFrequency+" - "+paymentRate(employees[employeeId].paymentFrequency));
 				System.out.println("New Payment Frequency: ");
 				System.out.println("  1 - Weekly ");
 				System.out.println("  2 - Monthly ");
