@@ -77,7 +77,7 @@ public class Payroll {
 				menuOption = scan.nextInt();
 			}
 			
-			if((lastAction == 2 && menuOption != 8) || (lastUndo == 1 && menuOption != 9)) deleteEmployee();
+			if(((lastAction == 2 && menuOption != 8) || (lastUndo == 1 && menuOption != 9)) && menuOption != 0) deleteEmployee();
 			
 			if(menuOption == 0){
 				printCurrentEmployees(4);
@@ -113,8 +113,10 @@ public class Payroll {
 			}
 			
 			else if(menuOption == 8){
+				System.out.println(lastAction);
 				if(lastAction == 8) System.out.println("You can't undo twice in a row, try using redo instead.");
-				else undo();				
+				else if(lastAction == 9) undo(1);
+				else undo(0);				
 			}
 			
 			else if(menuOption == 9){
@@ -130,7 +132,7 @@ public class Payroll {
 				System.out.println("Function still not implemented");	
 			}
 			
-			lastAction = menuOption;
+			if(menuOption != 0) lastAction = menuOption;
 		
 		}
 
@@ -614,7 +616,12 @@ public class Payroll {
 		
 	}
 	
-	public static void undo(){
+	public static void undo(int option){
+		if(option == 1){
+			auxInt = lastAction;
+			lastAction = lastUndo;
+		}
+		
 		if(lastEmployeeChanged == -1){
 			System.out.println("There are no actions to be undone!");
 			return;
@@ -666,6 +673,7 @@ public class Payroll {
 		}
 		
 		lastUndo = lastAction;
+		if(option == 1) lastAction = auxInt;
 		
 	}
 	
