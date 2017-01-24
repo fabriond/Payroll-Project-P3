@@ -1001,13 +1001,14 @@ public class Payroll {
 				}
 			}
 			else if(type == 4){
-				for(int i = 0; i < employeeCount; i++){
-					
-					System.out.println("\n\t  | Name: "+employees[i].name+"\n\t  | Address: "+employees[i].address);
-					System.out.print("  ID: ");
-					System.out.printf("%03d", employees[i].id);
-					System.out.println(" | Type: "+typeConversion(employees[i].type)+"\n\t  | Salary: R$ "+employees[i].salary+" "+paymentRate(employees[i].paymentFrequency)+"\n\t  | Payment Method: "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
-					
+				for(int i = 0, j = 0; i < employeeCount; i++){
+					if(employees[i].active == true){
+						System.out.println("\n\t  | Name: "+employees[i].name+"\n\t  | Address: "+employees[i].address);
+						System.out.print("  ID: ");
+						System.out.printf("%03d", j);
+						System.out.println(" | Type: "+typeConversion(employees[i].type)+"\n\t  | Salary: R$ "+employees[i].salary+" "+paymentRate(employees[i].paymentFrequency)+"\n\t  | Payment Method: "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
+						j++;
+					}
 				}
 			}
 			else{
