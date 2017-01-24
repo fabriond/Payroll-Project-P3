@@ -13,4 +13,4 @@ No desenvolvimento desse projeto foram usados a versão 8 do Java e a IDE Eclips
 - [x] Rodar a Folha de Pagamento para Hoje
 - [x] Undo/Redo
 - [x] Agenda de Pagamento
-- [ ] Criação de Novas Agendas de Pagamento
+- [x] Criação de Novas Agendas de Pagamento
