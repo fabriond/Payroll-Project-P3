@@ -620,7 +620,7 @@ public class Payroll {
 		else if(employee.type == 3){
 			Double totalSalesMoney = 0.0;
 			for(int i = 0; i < employee.saleNumber; i++){
-				if((employee.sales[i].day * employee.sales[i].month * employee.sales[i].year) - 14 < lastPayment){
+				if((employee.sales[i].day + (employee.sales[i].month * 30) + (employee.sales[i].year*365)) - 14 < lastPayment){
 					totalSalesMoney += employee.sales[i].value*(employee.commission/100);
 				}
 			}
@@ -940,7 +940,7 @@ public class Payroll {
 	}
 	
 	public static void setLastPayment(){
-		lastPayment = getDate()*getMonth()*getYear();
+		lastPayment = getDate()+(getMonth()*30)+(getYear()*365);
 	}
 	
 	public static int getToday(){
