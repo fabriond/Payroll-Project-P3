@@ -536,7 +536,7 @@ public class Payroll {
 		int monthlyPaymentDay = lastWorkingDayOfMonth();
 		int biweeklyPaymentDay = secondFridayOfMonth();
 		int paidEmployees = 0;
-		System.out.println(biweeklyPaymentDay);
+		
 		if(today == weeklyPayment){
 			
 			for(int i = 0; i < employeeCount; i++){
