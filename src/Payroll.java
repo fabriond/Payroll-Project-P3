@@ -9,7 +9,9 @@ public class Payroll {
 	static Employee[] employees = new Employee[200];
 	static int lastAction = 0;
 	static int lastMonth = 0;
+	static int lastDayOfLastMonth = 0;
 	static int lastPayment = 0;
+	static int lastBiweeklyPayment = 0;
 	static int activeEmployeeCount = 0;
 	
 	//used for undo/redo purposes:
@@ -534,14 +536,14 @@ public class Payroll {
 		int monthlyPaymentDay = lastWorkingDayOfMonth();
 		int biweeklyPaymentDay = secondFridayOfMonth();
 		int paidEmployees = 0;
+		System.out.println(biweeklyPaymentDay);
 		if(today == weeklyPayment){
 			
 			for(int i = 0; i < employeeCount; i++){
-				System.out.println(employees[i].paymentFrequency+" | "+employees[i].name);
 				if(employees[i].active == true){
 					if(employees[i].paymentFrequency == 1){
 						paidEmployees++;
-						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod));
+						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
 					}
 				}	
 			}	
@@ -552,18 +554,18 @@ public class Payroll {
 				if(employees[i].active == true){
 					if(employees[i].paymentFrequency == 2){
 						paidEmployees++;
-						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod));
+						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
 					}
 				}	
 			}	
 		}
 		if(today == biweeklyPaymentDay){
-			
+			lastBiweeklyPayment = today;
 			for(int i = 0; i < employeeCount; i++){
 				if(employees[i].active == true){
 					if(employees[i].paymentFrequency == 3){
 						paidEmployees++;
-						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod));
+						System.out.println("Paid "+employees[i].name+": R$ "+calculatePayCheck(employees[i])+" via "+paymentMethodConversion(employees[i].paymentMethod)+"\n");
 					}
 				}	
 			}	
@@ -742,6 +744,7 @@ public class Payroll {
 		}		
 
 	}
+	
 	public static int getDate(){
 		Calendar date = Calendar.getInstance();
 		return date.get(Calendar.DAY_OF_MONTH);
@@ -759,6 +762,7 @@ public class Payroll {
 	public static void setMonth(){
 		Calendar date = Calendar.getInstance();
 		lastMonth = date.get(Calendar.MONTH) +1;
+		lastDayOfLastMonth = date.getActualMaximum(Calendar.DAY_OF_MONTH);
 	}
 	
 	public static int getMonth(){
@@ -781,9 +785,20 @@ public class Payroll {
 	
 	public static int secondFridayOfMonth(){
 		
+		int today = getDate();
 		int firstDay = 1;
 		int firstDayWeek = getWeekDayOfFirstDayOfMonth();
-		int secondFriday = firstDay + (6 - firstDayWeek)+6;
+		int secondFriday = firstDay + (6 - firstDayWeek)+7;;
+		if(lastBiweeklyPayment != 0 && lastMonth != getMonth()){
+			secondFriday = 14 + lastBiweeklyPayment;
+			if(secondFriday > lastDayOfLastMonth){
+				secondFriday -= lastDayOfLastMonth;
+			}
+		}
+		else if(today > secondFriday){
+			secondFriday += 14;
+		}
+		
 		return secondFriday;
 		
 	}
